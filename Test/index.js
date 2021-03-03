@@ -76,20 +76,64 @@ app.get('/token/:c_ver/:code', (request, response) => {
 })
 
 app.get('/user/:token', (request, response) => {
+    
+    const token = request.params.token;
 
-    async function GetUser(token){
-        const options = {
-            method: 'GET',
-            headers: {
-                'Authorization' : 'Bearer ' + token,
-            }
+    const options = {
+        method: 'GET',
+        headers: {
+            'Authorization' : 'Bearer ' + token,
         }
+    }
 
+    async function GetUser(){
         const res = await fetch('https://api.myanimelist.net/v2/users/@me', options);
         const me_json = await res.json();
         response.send(me_json);
     }
 
-    GetUser(request.params.token);
+    //GetUser(request.params.token);
+
+    //anime testing-----------------------------------------------
+
+    let ani;
+
+    async function GetAnime(anime){
+        const res = await fetch('https://api.myanimelist.net/v2/anime?q='+ anime +'&limit=5', options);
+        const a_list = await res.json();
+        const q_res = await a_list.data;
+        
+        q_res.forEach(ani_res => {
+            if(ani_res.node.title == anime){
+                ani = ani_res.node;
+                //console.log(ani);
+            }
+        });
+
+        
+    }
+
+    
+    GetAnime('Enen no Shouboutai');
+
+
+    async function GetAnimeList(){
+        await GetAnime('Enen no Shouboutai');
+        
+        const res = await fetch('https://api.myanimelist.net/v2/users/@me/animelist?fields=list_status&limit=1000', options);
+        const res_json = await res.json();
+        const q_res = await res_json.data;
+
+        q_res.forEach(i => {
+            if(i.node.id == ani.id){
+                console.log(i);
+            }
+        })
+
+        //console.log(q_res);
+
+    }
+
+    GetAnimeList();
 
 })
