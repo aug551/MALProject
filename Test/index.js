@@ -92,48 +92,75 @@ app.get('/user/:token', (request, response) => {
         response.send(me_json);
     }
 
-    //GetUser(request.params.token);
+    GetUser(request.params.token);
 
     //anime testing-----------------------------------------------
 
-    let ani;
+    
+
+})
+
+app.get('/anime/:token/:anime', (request, response) => {
+    const token = request.params.token;
+    const anime = request.params.anime;
+
+    const options = {
+        method: 'GET',
+        headers: {
+            'Authorization' : 'Bearer ' + token,
+        }
+    }
+
+    let ani; // resulting anime in json format
 
     async function GetAnime(anime){
-        const res = await fetch('https://api.myanimelist.net/v2/anime?q='+ anime +'&limit=5', options);
+        const res = await fetch('https://api.myanimelist.net/v2/anime?q='+ anime + '&fields=alternative_titles' +'&limit=5', options);
         const a_list = await res.json();
         const q_res = await a_list.data;
         
         q_res.forEach(ani_res => {
             if(ani_res.node.title == anime){
                 ani = ani_res.node;
-                //console.log(ani);
+            }
+            if(ani_res.node.alternative_titles.en == anime){
+                ani = ani_res.node;
             }
         });
-
+    
         
     }
 
-    
-    GetAnime('Enen no Shouboutai');
 
-
-    async function GetAnimeList(){
-        await GetAnime('Enen no Shouboutai');
+    async function GetAnimeList(show){
         
-        const res = await fetch('https://api.myanimelist.net/v2/users/@me/animelist?fields=list_status&limit=1000', options);
+        await GetAnime(show);
+
+        
+        const res = 
+        await fetch('https://api.myanimelist.net/v2/users/@me/animelist?fields=list_status&limit=1000', options);
         const res_json = await res.json();
         const q_res = await res_json.data;
 
         q_res.forEach(i => {
             if(i.node.id == ani.id){
-                console.log(i);
+                response.send(i);
             }
         })
 
-        //console.log(q_res);
-
     }
 
-    GetAnimeList();
+    GetAnimeList(anime);
 
 })
+
+
+
+
+
+
+
+
+
+
+
+
