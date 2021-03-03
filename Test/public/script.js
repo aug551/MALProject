@@ -2,16 +2,23 @@
 // 2b8d36cc897656a0b7ec7ccce4c0707c
 
 var code_verifier = code_challenge = "";
+const client_id = '2b8d36cc897656a0b7ec7ccce4c0707c';
 
 if(document.cookie == ""){
-    document.cookie = generateRandomString(128);
+    document.cookie = '_c_ver=' + generateRandomString(128);
 }
 
-code_verifier = code_challenge = document.cookie;
+let cs = document.cookie.split('; ');
+
+if(cs.find(row => row.startsWith('_a_tok')))
+{
+    window.location.replace('authorized.html');
+}
+
+code_verifier = code_challenge = cs.find(row => row.startsWith('_c_ver=')).split('=')[1];
 
 console.log(code_verifier);
 
-const client_id = '2b8d36cc897656a0b7ec7ccce4c0707c';
 
 const auth_url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${client_id}&code_challenge=${code_challenge}`;
 
@@ -25,4 +32,3 @@ function generateRandomString(length) {
     }
     return text;
 }
-

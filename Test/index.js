@@ -21,7 +21,6 @@ app.use(express.json({limit: '1mb'}));
 const c_id = '2b8d36cc897656a0b7ec7ccce4c0707c';
 const c_sec = '23f59c115d756619a4a1afc822c3ae94ea9eb942c7c4fb067e10730ed315c1a2';
 const token_url = 'https://myanimelist.net/v1/oauth2/token';
-var auth_token = '';
 
 
 app.get('/token/:c_ver/:code', (request, response) => {
@@ -48,26 +47,49 @@ app.get('/token/:c_ver/:code', (request, response) => {
                 grant_type: "authorization_code"
             })
         });
-        auth_token = await auth_res.json();
-        console.log(auth_token.access_token);
+        
+        const json = await auth_res.json();
+        response.send(json);
     }
 
 
-    async function GetUser(){
-        await getAuthToken();
+    getAuthToken();
+    
+
+    // async function GetUser(){
+    //     await getAuthToken();
+    //     const options = {
+    //         method: 'GET',
+    //         headers: {
+    //             'Authorization': 'Bearer ' + auth_token.access_token,
+    //         }
+    //     }
+
+    //     const response = await fetch('https://api.myanimelist.net/v2/users/@me', options);
+    //     const me_json = await response.json();
+    //     console.log(me_json);
+    // }
+
+    // GetUser();
+
+
+})
+
+app.get('/user/:token', (request, response) => {
+
+    async function GetUser(token){
         const options = {
             method: 'GET',
             headers: {
-                'Authorization': 'Bearer ' + auth_token.access_token,
+                'Authorization' : 'Bearer ' + token,
             }
         }
 
-        const response = await fetch('https://api.myanimelist.net/v2/users/@me', options);
-        const me_json = await response.json();
-        console.log(me_json);
+        const res = await fetch('https://api.myanimelist.net/v2/users/@me', options);
+        const me_json = await res.json();
+        response.send(me_json);
     }
 
-    GetUser();
-
+    GetUser(request.params.token);
 
 })
